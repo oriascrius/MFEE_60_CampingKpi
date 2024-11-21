@@ -13,6 +13,7 @@ try {
     error_log("Database Error: " . $e->getMessage());
     $error_message = "資料載入失敗，請稍後再試";
 }
+
 ?>
 
 <!-- 在頁面頂部添加，約在第 2-3 行之間 -->
