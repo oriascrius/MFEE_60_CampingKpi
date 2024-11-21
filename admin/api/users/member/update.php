@@ -14,11 +14,7 @@ function updateMember()
     global $db;
     $data = json_decode(file_get_contents('php://input'), true);
 
-    if (empty($data['id'])) {
-        throw new Exception('缺少必要參數');
-    }
-
-    if (!filter_var($data['id'], FILTER_VALIDATE_INT)) {
+    if (empty($data['id']) || !filter_var($data['id'], FILTER_VALIDATE_INT)) {
         throw new Exception('無效的會員ID');
     }
 
@@ -38,18 +34,12 @@ function updateMember()
         $params = [];
 
         // 檢查並設置各個欄位的更新
-        if (isset($data['name'])) {
-            if (mb_strlen($data['name']) > 50) {
-                throw new Exception('會員名稱不能超過50個字符');
-            }
+        if (isset($data['name']) && mb_strlen($data['name']) <= 50) {
             $updates[] = "name = ?";
             $params[] = trim($data['name']);
         }
 
-        if (isset($data['email'])) {
-            if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-                throw new Exception('無效的電子郵件格式');
-            }
+        if (isset($data['email']) && filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
             // 檢查信箱是否重複
             $check_stmt = $db->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
             $check_stmt->execute([trim($data['email']), $data['id']]);
@@ -70,10 +60,7 @@ function updateMember()
             $params[] = $data['birthday'];
         }
 
-        if (isset($data['gender'])) {
-            if (!in_array($data['gender'], ['male', 'female', 'other'])) {
-                throw new Exception('無效的性別選項');
-            }
+        if (isset($data['gender']) && in_array($data['gender'], ['male', 'female', 'other'])) {
             $updates[] = "gender = ?";
             $params[] = $data['gender'];
         }

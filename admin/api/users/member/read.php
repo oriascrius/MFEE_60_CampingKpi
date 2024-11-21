@@ -13,22 +13,13 @@ function getMember()
 {
     global $db;
     $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-    $status = filter_input(INPUT_GET, 'status', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0, 'max_range' => 1]]);
     
     if (!$id) {
         throw new Exception('無效的會員ID');
     }
 
-    $sql = "SELECT * FROM users WHERE id = ?";
-    if (isset($status)) {
-        $sql .= " AND status = ?";
-        $params = [$id, $status];
-    } else {
-        $params = [$id];
-    }
-
-    $stmt = $db->prepare($sql);
-    $stmt->execute($params);
+    $stmt = $db->prepare("SELECT * FROM users WHERE id = ?");
+    $stmt->execute([$id]);
     $member = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$member) {
